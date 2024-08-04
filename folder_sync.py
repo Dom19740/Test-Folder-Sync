@@ -16,16 +16,22 @@ def parse_arguments():
 def validate_paths(source, replica, log_file):
     """Validate the existence of the provided paths."""
     paths = [('source', source), ('replica', replica), ('log file', log_file)]
-    for name, path in paths:
-        while not os.path.exists(path):
-            path = input(f"{name.capitalize()} path '{path}' does not exist. Please enter a valid {name} path: ")
-    return source, replica, log_file
+    while any(not os.path.exists(path) for name, path in paths):
+        for i, (name, path) in enumerate(paths):
+            if not os.path.exists(path):
+                new_path = input(f"{name.capitalize()} path '{path}' does not exist. Please enter a valid {name} path: ")
+                paths[i] = (name, new_path)
+    return paths[0][1], paths[1][1], paths[2][1]
 
 def validate_interval(interval):
-    """Validate the synchronization interval."""
-    while interval <= 0:
-        interval = int(input("Invalid interval. Please enter a valid synchronization interval in seconds: "))
-    return interval
+    while True:
+        try:
+            interval = int(interval)
+            if interval <= 0:
+                raise ValueError
+            return interval
+        except ValueError:
+            interval = input("Invalid interval. Please enter a valid synchronization interval in seconds: ")
 
 def sync_folders(source, replica, logger):
     """Synchronize the source folder with the replica folder."""

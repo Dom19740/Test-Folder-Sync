@@ -1,79 +1,97 @@
 import unittest
-import shutil
+from unittest.mock import patch, Mock
 import os
+import tempfile
+import shutil
 import logging
-from logging_setup import setup_logging  # Adjust the import as necessary
+from folder_sync import sync_folders, validate_paths, validate_interval
 
-class TestFolderSyncErrorHandling(unittest.TestCase):
+# Set up logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
+class TestFolderSync(unittest.TestCase):
 
     def setUp(self):
-        self.source = 'test_source'
-        self.destination = 'test_destination'
-        os.makedirs(self.source, exist_ok=True)
-        os.makedirs(self.destination, exist_ok=True)
-        
-        # Setup logging
-        self.log_file = 'test_log.log'
-        self.logger = setup_logging(self.log_file)
-        self.log_capture = logging.getLogger('folder_sync')
-        self.log_capture.setLevel(logging.DEBUG)
-        self.log_capture_handler = logging.StreamHandler()
-        self.log_capture_handler.setFormatter(logging.Formatter('%(message)s'))
-        self.log_capture.addHandler(self.log_capture_handler)
-        self.log_capture_output = []
-
-        def capture_log(record):
-            self.log_capture_output.append(record.getMessage())
-
-        self.log_capture_handler.emit = capture_log
+        logger.info(f"Setting up test: {self._testMethodName}")
+        self.source_dir = tempfile.mkdtemp()
+        self.replica_dir = tempfile.mkdtemp()
+        self.log_dir = tempfile.mkdtemp()
 
     def tearDown(self):
-        shutil.rmtree(self.source, ignore_errors=True)
-        shutil.rmtree(self.destination, ignore_errors=True)
+        logger.info(f"Tearing down test: {self._testMethodName}")
+        shutil.rmtree(self.source_dir)
+        shutil.rmtree(self.replica_dir)
+        shutil.rmtree(self.log_dir)
+
+    def test_validate_paths(self):
+        logger.info("Running test_validate_paths")
+        source, replica, log_file = validate_paths(self.source_dir, self.replica_dir, self.log_dir)
+        self.assertEqual(source, self.source_dir)
+        self.assertEqual(replica, self.replica_dir)
+        self.assertEqual(log_file, self.log_dir)
+        logger.info("test_validate_paths passed")
+
+        logger.info("Testing invalid path scenario")
+        with patch('builtins.input', return_value=self.source_dir):
+            source, _, _ = validate_paths('/invalid/path', self.replica_dir, self.log_dir)
+            self.assertEqual(source, self.source_dir)
+        logger.info("Invalid path scenario passed")
+
+    def test_validate_interval(self):
+        logger.info("Running test_validate_interval")
+        self.assertEqual(validate_interval('10'), 10)
+        logger.info("Valid interval test passed")
+
+        logger.info("Testing invalid interval scenario")
+        with patch('builtins.input', return_value='5'):
+            self.assertEqual(validate_interval('invalid'), 5)
+        logger.info("Invalid interval scenario passed")
+
+    @patch('folder_sync.copy_files_and_directories')
+    @patch('folder_sync.remove_files_and_directories')
+    @patch('folder_sync.compare_files')
+    def test_sync_folders_normal(self, mock_compare, mock_remove, mock_copy):
+        logger.info("Running test_sync_folders_normal")
+        mock_compare.return_value = False  # Files are different
         
-        # Remove log handlers and close the log file
-        handlers = self.logger.handlers[:]
-        for handler in handlers:
-            handler.close()
-            self.logger.removeHandler(handler)
+        open(os.path.join(self.source_dir, 'test_file.txt'), 'w').close()
         
-        if os.path.exists(self.log_file):
-            os.remove(self.log_file)
-
-    def test_file_not_found_error(self):
-        # Simulate file not found error
-        try:
-            os.remove(os.path.join(self.source, 'non_existent_file.txt'))
-        except FileNotFoundError as e:
-            self.logger.error('File not found: %s', e)
-
-        self.assertTrue(any('File not found' in message for message in self.log_capture_output))
-
-    def test_permission_error(self):
-        # Simulate permission error by changing file permissions to read-only
-        test_file_path = os.path.join(self.source, 'test_file.txt')
-        with open(test_file_path, 'w') as f:
-            f.write('test')
+        sync_logger = Mock()
+        sync_folders(self.source_dir, self.replica_dir, sync_logger)
         
-        # Change the file permissions to read-only
-        os.chmod(test_file_path, 0o444)
+        mock_copy.assert_called()
+        sync_logger.info.assert_called()
+        logger.info("test_sync_folders_normal passed")
+
+    @patch('folder_sync.copy_files_and_directories')
+    def test_sync_folders_permission_error(self, mock_copy):
+        logger.info("Running test_sync_folders_permission_error")
+        mock_copy.side_effect = PermissionError("Permission denied")
         
-        try:
-            with open(test_file_path, 'w') as f2:
-                f2.write('test')
-        except PermissionError as e:
-            self.logger.error('Permission error: %s', e)
-
-        self.assertTrue(any('Permission error' in message for message in self.log_capture_output))
+        open(os.path.join(self.source_dir, 'test_file.txt'), 'w').close()
         
-    def test_general_exception(self):
-        # Simulate general exception
-        try:
-            raise Exception('General error')
-        except Exception as e:
-            self.logger.error('General exception: %s', e)
+        sync_logger = Mock()
+        sync_folders(self.source_dir, self.replica_dir, sync_logger)
+        
+        sync_logger.error.assert_called_with("Permission error: Permission denied")
+        logger.info("test_sync_folders_permission_error passed")
 
-        self.assertTrue(any('General exception' in message for message in self.log_capture_output))
+    @patch('folder_sync.copy_files_and_directories')
+    def test_sync_folders_file_not_found(self, mock_copy):
+        logger.info("Running test_sync_folders_file_not_found")
+        mock_copy.side_effect = FileNotFoundError("File not found")
+        
+        open(os.path.join(self.source_dir, 'test_file.txt'), 'w').close()
+        
+        sync_logger = Mock()
+        sync_folders(self.source_dir, self.replica_dir, sync_logger)
+        
+        sync_logger.error.assert_called_with("File not found: File not found")
+        logger.info("test_sync_folders_file_not_found passed")
 
-if __name__ == '__main__':
-    unittest.main()
+    @patch('folder_sync.copy_files_and_directories')
+    def test_sync_folders_network_error(self, mock_copy):
+        logger.info("Running test_sync_folders_network_error")
+        mock_copy.side_effect = IOError("Network error")
+        
