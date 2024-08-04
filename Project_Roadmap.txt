@@ -1,4 +1,4 @@
-1. Command-line argument parsing 
+TODO DONE 1. Command-line argument parsing 
    - Source folder path
    - Replica folder path
    - Log file path
@@ -6,7 +6,7 @@
 
 python folder_sync.py D:\testsync\source D:\testsync\replica D:\testsync\logs 120
 
-TODO 2. Logging setup - STARTED
+TODO DONE 2. Logging setup
    - File logging
    - Console logging
 
@@ -16,14 +16,17 @@ TODO 2. Logging setup - STARTED
 
       Log messages for file creation, copying, and removal operations.
       Ensure logging configuration is used throughout the synchronization process:
-
-Make sure all relevant operations are logged.
+      Make sure all relevant operations are logged.
 
 TODO 3. File system operations
    - List files and directories in a folder
    - Compare files (using modification time and/or MD5 hash)
    - Copy files and directories
    - Remove files and directories
+
+   Step-by-Step Plan
+      Create file_operations.py for the file system operations.
+      Implement utility functions for each of the operations listed.
 
 TODO 4. Synchronization logic
    - Identify files/folders to be copied, updated, or removed

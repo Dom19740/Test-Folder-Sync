@@ -1,6 +1,9 @@
 import argparse
 import os
-from logging_setup import setup_logging  # Import the logging setup
+import time
+from logging_setup import setup_logging
+from file_operations import list_files_and_directories, compare_files, copy_files_and_directories, remove_files_and_directories
+
 
 # 1. PARSE COMMAND LINE ARGUMENTS
 
@@ -32,14 +35,56 @@ def validate_interval(interval):
         except ValueError:
             interval = input("Invalid interval. Please enter a valid synchronization interval in seconds: ")
 
-# Example usage
-args = parse_arguments()
-args.source, args.replica, args.log_file = validate_paths(args.source, args.replica, args.log_file)
-args.interval = validate_interval(args.interval)
+# 3. FILE SYSTEM OPERATIONS
 
-logger = setup_logging(args.log_file)
+def sync_folders(source, replica, logger):
+    """Synchronize the source folder with the replica folder."""
+    source_items = list_files_and_directories(source)
+    replica_items = list_files_and_directories(replica)
 
-logger.info(f"Source folder: {args.source}")
-logger.info(f"Replica folder: {args.replica}")
-logger.info(f"Logs folder: {args.log_file}")
-logger.info(f"Sync interval: {args.interval} seconds")
+    # Copy or update files from source to replica
+    for item in source_items:
+        source_item_path = os.path.join(source, item)
+        replica_item_path = os.path.join(replica, item)
+
+        if os.path.isdir(source_item_path):
+            if item not in replica_items:
+                logger.info(f"Copying directory {source_item_path} to {replica_item_path}")
+                copy_files_and_directories(source_item_path, replica_item_path)
+            else:
+                sync_folders(source_item_path, replica_item_path, logger)
+        else:
+            if item not in replica_items or not compare_files(source_item_path, replica_item_path, method='md5'):
+                logger.info(f"Copying file {source_item_path} to {replica_item_path}")
+                copy_files_and_directories(source_item_path, replica_item_path)
+
+    # Remove files and directories from replica that are not in source
+    for item in replica_items:
+        if item not in source_items:
+            replica_item_path = os.path.join(replica, item)
+            logger.info(f"Removing {replica_item_path}")
+            remove_files_and_directories(replica_item_path)
+
+
+if __name__ == "__main__":
+    # Parse command line arguments
+    args = parse_arguments()
+    
+    # Validate paths and interval
+    args.source, args.replica, args.log_file = validate_paths(args.source, args.replica, args.log_file)
+    args.interval = validate_interval(args.interval)
+    
+    # Setup logging
+    logger = setup_logging(args.log_file)
+    
+    # Log initial information
+    logger.info(f"Source folder: {args.source}")
+    logger.info(f"Replica folder: {args.replica}")
+    logger.info(f"Logs folder: {args.log_file}")
+    logger.info(f"Sync interval: {args.interval} seconds")
+
+    # Main synchronization loop
+    while True:
+        sync_folders(args.source, args.replica, logger)
+        time.sleep(args.interval)
+    
