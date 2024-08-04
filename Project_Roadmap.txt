@@ -1,11 +1,12 @@
 1. Command-line argument parsing - STARTED
    - Source folder path
    - Replica folder path
-   - Synchronization interval
    - Log file path
+   - Synchronization interval
+
 
 TO TEST
-python folder_sync.py "D:\Google Drive\Development\Test\Test-Folder-Sync\source" "D:\Google Drive\Development\Test\Test-Folder-Sync\replica" 60 "D:\Google Drive\Development\Test\Test-Folder-Sync\logs\syncs.log"
+python folder_sync.py D:\testsync\source D:\testsync\replica D:\testsync\logs 120
 
 2. Logging setup
    - File logging
