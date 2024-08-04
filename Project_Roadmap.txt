@@ -55,7 +55,7 @@ TODO DONE 6. Main program flow
    - Initialize synchronization
    - Start periodic execution
 
-TODO 7. Error handling and edge cases
+TODO DONE 7. Error handling and edge cases
    - Handle file permission issues
    - Deal with locked files
    - Manage network errors if folders are on different systems
