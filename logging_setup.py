@@ -1,6 +1,8 @@
 import os
 import logging
 
+# 2. LOGGING SETUP
+
 def setup_logging(log_file):
     logger = logging.getLogger('folder_sync')
     logger.setLevel(logging.DEBUG)

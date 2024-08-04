@@ -38,33 +38,36 @@ def validate_interval(interval):
 # 3. FILE SYSTEM OPERATIONS
 
 def sync_folders(source, replica, logger):
-    """Synchronize the source folder with the replica folder."""
-    source_items = list_files_and_directories(source)
-    replica_items = list_files_and_directories(replica)
+    try:
+        """Synchronize the source folder with the replica folder."""
+        source_items = os.listdir(source)
+        replica_items = os.listdir(replica)
 
-    # Copy or update files from source to replica
-    for item in source_items:
-        source_item_path = os.path.join(source, item)
-        replica_item_path = os.path.join(replica, item)
-
-        if os.path.isdir(source_item_path):
-            if item not in replica_items:
-                logger.info(f"Copying directory {source_item_path} to {replica_item_path}")
-                copy_files_and_directories(source_item_path, replica_item_path)
-            else:
-                sync_folders(source_item_path, replica_item_path, logger)
-        else:
-            if item not in replica_items or not compare_files(source_item_path, replica_item_path, method='md5'):
-                logger.info(f"Copying file {source_item_path} to {replica_item_path}")
-                copy_files_and_directories(source_item_path, replica_item_path)
-
-    # Remove files and directories from replica that are not in source
-    for item in replica_items:
-        if item not in source_items:
+        # Copy or update files from source to replica
+        for item in source_items:
+            source_item_path = os.path.join(source, item)
             replica_item_path = os.path.join(replica, item)
-            logger.info(f"Removing {replica_item_path}")
-            remove_files_and_directories(replica_item_path)
 
+            if os.path.isdir(source_item_path):
+                if item not in replica_items:
+                    logger.info(f"Copying directory {source_item_path} to {replica_item_path}")
+                    copy_files_and_directories(source_item_path, replica_item_path)
+                else:
+                    sync_folders(source_item_path, replica_item_path, logger)
+            else:
+                if item not in replica_items or not compare_files(source_item_path, replica_item_path, method='md5'):
+                    logger.info(f"Copying file {source_item_path} to {replica_item_path}")
+                    copy_files_and_directories(source_item_path, replica_item_path)
+
+        # Remove files and directories from replica that are not in source
+        for item in replica_items:
+            if item not in source_items:
+                replica_item_path = os.path.join(replica, item)
+                logger.info(f"Removing {replica_item_path}")
+                remove_files_and_directories(replica_item_path)
+
+    except Exception as e:
+        logger.error(f"Error during synchronization: {e}")
 
 if __name__ == "__main__":
     # Parse command line arguments
@@ -87,4 +90,3 @@ if __name__ == "__main__":
     while True:
         sync_folders(args.source, args.replica, logger)
         time.sleep(args.interval)
-    

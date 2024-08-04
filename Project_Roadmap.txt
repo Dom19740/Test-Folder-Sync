@@ -33,6 +33,19 @@ TODO 4. Synchronization logic
    - Perform necessary file system operations
    - Handle errors during synchronization
 
+   Step-by-Step Plan
+      Identify items to be synchronized:
+
+      List items in the source and replica directories.
+      Determine which items need to be copied, updated, or removed.
+      Perform file system operations:
+
+      Copy new or updated items from the source to the replica.
+      Remove items from the replica that are no longer in the source.
+      Handle errors:
+
+      Log errors and continue with the next item.
+
 TODO 5. Periodic execution
    - Set up a timer or scheduler to run synchronization at specified intervals
 
