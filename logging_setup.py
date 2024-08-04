@@ -1,8 +1,6 @@
 import os
 import logging
 
-# 2. LOGGING SETUP
-
 def setup_logging(log_file):
     logger = logging.getLogger('folder_sync')
     logger.setLevel(logging.DEBUG)
@@ -22,7 +20,7 @@ def setup_logging(log_file):
             raise PermissionError(f"Log file '{log_file}' is not writable.")
     else:
         # Check if the directory is writable
-        if not os.access(log_dir, os.W_OK):
+        if log_dir and not os.access(log_dir, os.W_OK):
             raise PermissionError(f"Log directory '{log_dir}' is not writable.")
 
     # Create handlers
