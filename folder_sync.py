@@ -4,7 +4,6 @@ import time
 from logging_setup import setup_logging
 from file_operations import list_files_and_directories, compare_files, copy_files_and_directories, remove_files_and_directories
 
-
 # 1. PARSE COMMAND LINE ARGUMENTS
 
 def parse_arguments():
@@ -66,6 +65,10 @@ def sync_folders(source, replica, logger):
                 logger.info(f"Removing {replica_item_path}")
                 remove_files_and_directories(replica_item_path)
 
+    except PermissionError as e:
+        logger.error(f"Permission error: {e}")
+    except FileNotFoundError as e:
+        logger.error(f"File not found: {e}")
     except Exception as e:
         logger.error(f"Error during synchronization: {e}")
 
