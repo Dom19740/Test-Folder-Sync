@@ -1,8 +1,6 @@
 import argparse
 import os
 
-print("Script is running")  # Debugging print statement
-
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Folder Synchronization Script')
     parser.add_argument('source', type=str, help='Path to the source folder')
@@ -11,6 +9,7 @@ def parse_arguments():
     parser.add_argument('interval', type=int, help='Synchronization interval in seconds')
     return parser.parse_args()
 
+# Invalid path error handling
 def validate_paths(source, replica, log_file):
     paths = [('source', source), ('replica', replica), ('log file', log_file)]
     while any(not os.path.exists(path) for name, path in paths):
