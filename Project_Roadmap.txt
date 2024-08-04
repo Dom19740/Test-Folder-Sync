@@ -1,44 +1,49 @@
-1. Command-line argument parsing - STARTED
+1. Command-line argument parsing 
    - Source folder path
    - Replica folder path
    - Log file path
    - Synchronization interval
 
-
-TO TEST
 python folder_sync.py D:\testsync\source D:\testsync\replica D:\testsync\logs 120
 
-2. Logging setup
+TODO 2. Logging setup - STARTED
    - File logging
    - Console logging
 
-3. File system operations
+   Step-by-Step Plan
+      Configure logging to output to both a file and the console.
+      Integrate logging into file operations:
+
+      Log messages for file creation, copying, and removal operations.
+      Ensure logging configuration is used throughout the synchronization process:
+
+Make sure all relevant operations are logged.
+
+TODO 3. File system operations
    - List files and directories in a folder
    - Compare files (using modification time and/or MD5 hash)
    - Copy files and directories
    - Remove files and directories
 
-4. Synchronization logic
+TODO 4. Synchronization logic
    - Identify files/folders to be copied, updated, or removed
    - Perform necessary file system operations
    - Handle errors during synchronization
 
-5. Periodic execution
+TODO 5. Periodic execution
    - Set up a timer or scheduler to run synchronization at specified intervals
 
-6. Main program flow
+TODO 6. Main program flow
    - Parse arguments
    - Set up logging
    - Initialize synchronization
    - Start periodic execution
 
-7. Error handling and edge cases
+TODO 7. Error handling and edge cases
    - Handle file permission issues
    - Deal with locked files
    - Manage network errors if folders are on different systems
 
-8. Testing and validation
+TODO 8. Testing and validation
    - Create test cases for different scenarios
    - Validate synchronization results
-
-This breakdown gives us a clear roadmap for implementing the script. Would you like to start working on any specific part, or do you have any questions about this structure?
