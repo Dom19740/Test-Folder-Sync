@@ -64,7 +64,6 @@ TODO DONE 8. Testing and validation
    - Create test cases for different scenarios
    - Validate synchronization results
 
-TODO ADDITIONAL THOUGHTS:
-   - Handle whether log path is dir or file. parameter variable should be called log_dir
-   - Handle relative pahts: i.e. ~/logs
-   - Why no log timestamps in the console
+ADDITIONAL THOUGHTS:
+TODO DONE - Handle whether log path is dir or file
+TODO DONE - Why no log timestamps in the console

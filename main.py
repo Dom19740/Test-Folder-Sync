@@ -14,7 +14,7 @@ def parse_arguments():
     return parser.parse_args()
 
 # Example usage:
-# python main.py -s C:\source -r C:\replica -l C:\logs -i 10
+# python main.py -s C:\source -r C:\replica -l C:\logs -i 120
 
 def validate_paths(source, replica, log):
     """Validate the existence of the provided paths."""
@@ -63,12 +63,15 @@ def sync_folders(source, replica, logger):
                 logger.info(f"Removing {replica_item_path}")
                 remove_files_and_directories(replica_item_path)
 
+        return True  # Sync successful
+
     except PermissionError as e:
         logger.error(f"Permission error: {e}")
     except FileNotFoundError as e:
         logger.error(f"File not found: {e}")
     except Exception as e:
         logger.error(f"Error during synchronization: {e}")
+    return False  # Sync failed
 
 if __name__ == "__main__":
     args = parse_arguments()
@@ -83,5 +86,9 @@ if __name__ == "__main__":
     logger.info(f"Sync interval: {args.interval} seconds")
 
     while True:
-        sync_folders(args.source, args.replica, logger)
+        success = sync_folders(args.source, args.replica, logger)
+        if success:
+            logger.info("Synchronization completed successfully.")
+        else:
+            logger.error("Synchronization failed.")
         time.sleep(args.interval)

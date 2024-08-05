@@ -37,13 +37,15 @@ To run the Folder Synchronization Script, use the following command:
 
 ```sh
 python main.py -s <source_directory> -r <replica_directory> -l <log_directory> -i <interval_in_seconds>
+```
 
 ## Example
 
-python main.py -s C:\source -r C:\replica -l C:\logs -i 10
+python main.py -s C:\source -r C:\replica -l C:\logs -i 120
 
 ## Arguments
 -s, --source: Path to the source directory.
 -r, --replica: Path to the replica directory.
 -l, --log_file: Path to the log directory.
 -i, --interval: Synchronization interval in seconds.
+
