@@ -4,7 +4,7 @@ import os
 import tempfile
 import shutil
 import logging
-from folder_sync import sync_folders, validate_paths, validate_interval
+from main import sync_folders, validate_paths, validate_interval
 
 # Set up logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -48,9 +48,9 @@ class TestFolderSync(unittest.TestCase):
             self.assertEqual(validate_interval('invalid'), 5)
         logger.info("Invalid interval scenario passed")
 
-    @patch('folder_sync.copy_files_and_directories')
-    @patch('folder_sync.remove_files_and_directories')
-    @patch('folder_sync.compare_files')
+    @patch('main.copy_files_and_directories')
+    @patch('main.remove_files_and_directories')
+    @patch('main.compare_files')
     def test_sync_folders_normal(self, mock_compare, mock_remove, mock_copy):
         logger.info("Running test_sync_folders_normal")
         mock_compare.return_value = False  # Files are different
@@ -64,7 +64,7 @@ class TestFolderSync(unittest.TestCase):
         sync_logger.info.assert_called()
         logger.info("test_sync_folders_normal passed")
 
-    @patch('folder_sync.copy_files_and_directories')
+    @patch('main.copy_files_and_directories')
     def test_sync_folders_permission_error(self, mock_copy):
         logger.info("Running test_sync_folders_permission_error")
         mock_copy.side_effect = PermissionError("Permission denied")
@@ -77,7 +77,7 @@ class TestFolderSync(unittest.TestCase):
         sync_logger.error.assert_called_with("Permission error: Permission denied")
         logger.info("test_sync_folders_permission_error passed")
 
-    @patch('folder_sync.copy_files_and_directories')
+    @patch('main.copy_files_and_directories')
     def test_sync_folders_file_not_found(self, mock_copy):
         logger.info("Running test_sync_folders_file_not_found")
         mock_copy.side_effect = FileNotFoundError("File not found")
@@ -90,7 +90,7 @@ class TestFolderSync(unittest.TestCase):
         sync_logger.error.assert_called_with("File not found: File not found")
         logger.info("test_sync_folders_file_not_found passed")
 
-    @patch('folder_sync.copy_files_and_directories')
+    @patch('main.copy_files_and_directories')
     def test_sync_folders_network_error(self, mock_copy):
         logger.info("Running test_sync_folders_network_error")
         mock_copy.side_effect = IOError("Network error")
