@@ -7,10 +7,10 @@ from file_operations import compare_files, copy_files_and_directories, remove_fi
 def parse_arguments():
     """Parse command line arguments."""
     parser = argparse.ArgumentParser(description='Folder Synchronization Script')
-    parser.add_argument('source', type=str, help='Path to the source folder')
-    parser.add_argument('replica', type=str, help='Path to the replica folder')
-    parser.add_argument('log_file', type=str, help='Path to the log file or directory')
-    parser.add_argument('interval', type=int, help='Synchronization interval in seconds')
+    parser.add_argument('-s', '--source', dest="source", type=str, required=True, help='Path to the source directory')
+    parser.add_argument('-r', '--replica', dest="replica", type=str, required=True, help='Path to the replica directory')
+    parser.add_argument('-l', '--log_file', dest="log_file", type=str, required=True, help='Path to the log directory')
+    parser.add_argument('-i', '--interval', dest="interval", type=int, required=True, help='Synchronization interval in seconds')
     return parser.parse_args()
 
 def validate_paths(source, replica, log_file):
