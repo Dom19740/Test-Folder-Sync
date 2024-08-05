@@ -13,6 +13,9 @@ def parse_arguments():
     parser.add_argument('-i', '--interval', dest="interval", type=int, required=True, help='Synchronization interval in seconds')
     return parser.parse_args()
 
+# Example usage:
+# python main.py -s C:\source -r C:\replica -l C:\logs -i 10
+
 def validate_paths(source, replica, log_file):
     """Validate the existence of the provided paths."""
     paths = [('source', source), ('replica', replica), ('log file', log_file)]
