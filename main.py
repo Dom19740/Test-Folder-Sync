@@ -38,6 +38,7 @@ def validate_interval(interval):
 
 def sync_folders(source, replica, logger):
     """Synchronize the source folder with the replica folder."""
+    changes_made = 0
     try:
         source_items = os.listdir(source)
         replica_items = os.listdir(replica)
@@ -50,20 +51,23 @@ def sync_folders(source, replica, logger):
                 if item not in replica_items:
                     logger.info(f"Copying folder {source_item_path} to {replica_item_path}")
                     copy_files_and_directories(source_item_path, replica_item_path)
+                    changes_made += 1
                 else:
-                    sync_folders(source_item_path, replica_item_path, logger)
+                    changes_made += sync_folders(source_item_path, replica_item_path, logger)
             else:
                 if item not in replica_items or not compare_files(source_item_path, replica_item_path, method='md5'):
                     logger.info(f"Copying file {source_item_path} to {replica_item_path}")
                     copy_files_and_directories(source_item_path, replica_item_path)
+                    changes_made += 1
 
         for item in replica_items:
             if item not in source_items:
                 replica_item_path = os.path.join(replica, item)
                 logger.info(f"Removing {replica_item_path}")
                 remove_files_and_directories(replica_item_path)
+                changes_made += 1
 
-        return True  # Sync successful
+        return changes_made
 
     except PermissionError as e:
         logger.error(f"Permission error: {e}")
@@ -71,7 +75,7 @@ def sync_folders(source, replica, logger):
         logger.error(f"File not found: {e}")
     except Exception as e:
         logger.error(f"Error during synchronization: {e}")
-    return False  # Sync failed
+    return 0
 
 if __name__ == "__main__":
     args = parse_arguments()
@@ -86,9 +90,9 @@ if __name__ == "__main__":
     logger.info(f"Sync interval: {args.interval} seconds")
 
     while True:
-        success = sync_folders(args.source, args.replica, logger)
-        if success:
-            logger.info("Synchronization completed successfully.")
+        changes_made = sync_folders(args.source, args.replica, logger)
+        if changes_made > 0:
+            logger.info(f"Synchronization completed successfully. {changes_made} changes made.")
         else:
-            logger.error("Synchronization failed.")
+            logger.info("No files changed.")
         time.sleep(args.interval)
