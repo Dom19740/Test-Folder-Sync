@@ -60,11 +60,11 @@ TODO DONE 7. Error handling and edge cases
    - Deal with locked files
    - Manage network errors if folders are on different systems
 
-TODO 8. Testing and validation
+TODO DONE 8. Testing and validation
    - Create test cases for different scenarios
    - Validate synchronization results
 
-ADDITIONAL THOUGHTS:
+TODO ADDITIONAL THOUGHTS:
    - Handle whether log path is dir or file. parameter variable should be called log_dir
    - Handle relative pahts: i.e. ~/logs
    - Why no log timestamps in the console

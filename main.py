@@ -7,18 +7,18 @@ from file_operations import compare_files, copy_files_and_directories, remove_fi
 def parse_arguments():
     """Parse command line arguments."""
     parser = argparse.ArgumentParser(description='Folder Synchronization Script')
-    parser.add_argument('-s', '--source', dest="source", type=str, required=True, help='Path to the source directory')
-    parser.add_argument('-r', '--replica', dest="replica", type=str, required=True, help='Path to the replica directory')
-    parser.add_argument('-l', '--log_file', dest="log_file", type=str, required=True, help='Path to the log directory')
+    parser.add_argument('-s', '--source', dest="source", type=str, required=True, help='Path to the source folder')
+    parser.add_argument('-r', '--replica', dest="replica", type=str, required=True, help='Path to the replica folder')
+    parser.add_argument('-l', '--log', dest="log", type=str, required=True, help='Path to the log folder')
     parser.add_argument('-i', '--interval', dest="interval", type=int, required=True, help='Synchronization interval in seconds')
     return parser.parse_args()
 
 # Example usage:
 # python main.py -s C:\source -r C:\replica -l C:\logs -i 10
 
-def validate_paths(source, replica, log_file):
+def validate_paths(source, replica, log):
     """Validate the existence of the provided paths."""
-    paths = [('source', source), ('replica', replica), ('log file', log_file)]
+    paths = [('source', source), ('replica', replica), ('log file', log)]
     while any(not os.path.exists(path) for name, path in paths):
         for i, (name, path) in enumerate(paths):
             if not os.path.exists(path):
@@ -48,7 +48,7 @@ def sync_folders(source, replica, logger):
 
             if os.path.isdir(source_item_path):
                 if item not in replica_items:
-                    logger.info(f"Copying directory {source_item_path} to {replica_item_path}")
+                    logger.info(f"Copying folder {source_item_path} to {replica_item_path}")
                     copy_files_and_directories(source_item_path, replica_item_path)
                 else:
                     sync_folders(source_item_path, replica_item_path, logger)
@@ -72,14 +72,14 @@ def sync_folders(source, replica, logger):
 
 if __name__ == "__main__":
     args = parse_arguments()
-    args.source, args.replica, args.log_file = validate_paths(args.source, args.replica, args.log_file)
+    args.source, args.replica, args.log = validate_paths(args.source, args.replica, args.log)
     args.interval = validate_interval(args.interval)
-    
-    logger = setup_logging(args.log_file)
+
+    logger = setup_logging(args.log)
     
     logger.info(f"Source folder: {args.source}")
     logger.info(f"Replica folder: {args.replica}")
-    logger.info(f"Logs folder: {args.log_file}")
+    logger.info(f"Logs folder: {args.log}")
     logger.info(f"Sync interval: {args.interval} seconds")
 
     while True:
