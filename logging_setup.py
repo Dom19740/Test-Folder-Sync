@@ -28,12 +28,11 @@ def setup_logging(log_file):
     console_handler.setLevel(logging.DEBUG)
     file_handler.setLevel(logging.INFO)
 
-    # Create formatters and add them to the handlers
-    console_format = logging.Formatter('%(name)s - %(levelname)s - %(message)s')
-    file_format = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    # Create a formatter with timestamps and add it to both handlers
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
-    console_handler.setFormatter(console_format)
-    file_handler.setFormatter(file_format)
+    console_handler.setFormatter(formatter)
+    file_handler.setFormatter(formatter)
 
     # Add handlers to the logger
     logger.addHandler(console_handler)
